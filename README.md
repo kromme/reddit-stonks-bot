@@ -1,14 +1,16 @@
 # Reddit-stonks-bot
+Scrape most mentioned stock tickers from subreddits like Wallstreetbets and Wallstreetbetsnew. Use it go to the moon!  
 ![wsb](https://upload.wikimedia.org/wikipedia/en/f/f0/WallStreetBets.png)  
 
-Scrape most mentioned stock tickers from subreddits like Wallstreetbets and Wallstreetbetsnew. Use it go to the moon!
 
-The output is printed and exported to output/mentions.csv in `append`-mode.
 
 ## Usage
 First get your credentials from [Reddit](https://praw.readthedocs.io/en/latest/getting_started/authentication.html). Either place them in a `creds.yaml`-file in the same folder as the `stonks_bot.py` or in environment variables. In either case use the following keys: REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_REDIRECT_URL, REDDIT_USER_AGENT.  
 
-Example YAML:
+The output is printed and exported to output/mentions.csv in `append`-mode.
+
+
+### Example YAML:
 ```
 REDDIT_CLIENT_ID: xxXXXxxXXxXXxX
 REDDIT_CLIENT_SECRET: xxxx_xxxxxxxxxxxxxxxxxxxxxxxxxx
