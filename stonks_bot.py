@@ -91,7 +91,7 @@ class StonksBot:
             if ticker not in BLACKLIST_WORDS
         ]
 
-    def find_tickers_in_post(self, post: praw.post):
+    def find_tickers_in_post(self, post: praw.post) -> list:
         """Find al tickers in a title and comments
         :param post: A Reddit Post
         """
@@ -124,5 +124,18 @@ class StonksBot:
 
                 # check tickers in reply
                 found_tickers += self.find_tickers(reply.body)
+
+        return found_tickers
+
+    def find_tickers_in_subreddit(self, subreddit: str) -> list:
+        """Loop through posts of a subreddit
+        :param subreddit: name of the subreddit
+        """
+        sub = self.reddit.subreddit(subreddit)
+        posts = sub.new(limit=self.number_of_posts)
+
+        found_tickers = []
+        for _, post in enumerate(posts):
+            found_tickers += self.find_tickers_in_post(post)
 
         return found_tickers
