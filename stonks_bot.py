@@ -59,7 +59,12 @@ class StonksBot:
         """
 
         with open("data/tickers.txt", "r") as f:
-            self.tickers = f.readlines()
+            tickers = f.readlines()
 
         with open("data/EU_tickers.txt", "r") as f:
-            self.tickers += f.readlines()
+            tickers += f.readlines()
+
+        tickers = [str(t).replace("\n", "").strip() for t in tickers]
+        tickers = [t for t in tickers if len(t) > 1]
+
+        self.RE_TICKERS = re.compile(r"\b(" + "|".join(tickers) + r")\b")
