@@ -2,8 +2,11 @@ import praw
 import os
 import re
 import yaml
-from datetime import datetime
+from datetime import datetime, timedelta
 from praw.models import MoreComments
+from constants import BLACKLIST_WORDS
+
+# with thanks to https://github.com/RyanElliott10/wsbtickerbot
 
 
 class StonksBot:
@@ -13,11 +16,12 @@ class StonksBot:
         self,
         subreddit=["wallstreetbets", "wallstreetbetsnew"],
         number_of_posts: int = 2000,
+        number_of_days: int = 1,
     ) -> None:
 
-        self.ts = datetime.now()
         self.subreddit = subreddit if isinstance(subreddit, list) else [subreddit]
         self.number_of_posts = number_of_posts
+        self.number_of_days = number_of_days
 
         # init Reddit account
         self._init_reddit_account()
@@ -81,4 +85,44 @@ class StonksBot:
 
     def find_tickers(self, text: str) -> list:
         """find all tickers in a text"""
-        return self.RE_TICKERS.findall(text)
+        return [
+            ticker
+            for ticker in self.RE_TICKERS.findall(text)
+            if ticker not in BLACKLIST_WORDS
+        ]
+
+    def find_tickers_in_post(self, post: praw.post):
+        """Find al tickers in a title and comments
+        :param post: A Reddit Post
+        """
+        found_tickers = []
+        # skip if already seen
+        if post.clicked:
+            return []
+
+        # check whether post is not too old
+        ts_post = datetime.fromtimestamp(post.created_utc)
+        ts_range = datetime.now() - timedelta(days=self.number_of_days)
+        if ts_post < ts_range:
+            return []
+
+        # check title
+        found_tickers += self.find_tickers(post.title)
+
+        for comment in post.comments:
+            if isinstance(comment, MoreComments):
+                continue
+
+            # check tickers
+            found_tickers += self.find_tickers(comment.body)
+
+            # comment has replies
+            replies = comment.replies
+            for reply in replies:
+                if isinstance(reply, MoreComments):
+                    continue
+
+                # check tickers in reply
+                found_tickers += self.find_tickers(reply.body)
+
+        return found_tickers
