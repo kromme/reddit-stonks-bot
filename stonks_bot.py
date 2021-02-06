@@ -2,12 +2,22 @@ import praw
 import os
 import re
 import yaml
+from datetime import datetime
+from praw.models import MoreComments
 
 
 class StonksBot:
     """Scrape tickers from subreddits"""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        subreddit=["wallstreetbets", "wallstreetbetsnew"],
+        number_of_posts: int = 2000,
+    ) -> None:
+
+        self.ts = datetime.now()
+        self.subreddit = subreddit if isinstance(subreddit, list) else [subreddit]
+        self.number_of_posts = number_of_posts
 
         # init Reddit account
         self._init_reddit_account()
@@ -68,3 +78,7 @@ class StonksBot:
         tickers = [t for t in tickers if len(t) > 1]
 
         self.RE_TICKERS = re.compile(r"\b(" + "|".join(tickers) + r")\b")
+
+    def find_tickers(self, text: str) -> list:
+        """find all tickers in a text"""
+        return self.RE_TICKERS.findall(text)
