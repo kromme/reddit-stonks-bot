@@ -1,3 +1,5 @@
+# with thanks to https://github.com/RyanElliott10/wsbtickerbot
+
 BLACKLIST_WORDS = [
     "YOLO",
     "TOS",

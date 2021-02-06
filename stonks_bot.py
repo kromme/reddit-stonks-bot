@@ -1,16 +1,28 @@
-import praw
 import os
 import re
-import yaml
+from collections import Counter
 from datetime import datetime, timedelta
-from praw.models import MoreComments
-from constants import BLACKLIST_WORDS
 
-# with thanks to https://github.com/RyanElliott10/wsbtickerbot
+import pandas as pd
+import praw
+import yaml
+from praw.models import MoreComments
+from tqdm import tqdm
+
+from constants import BLACKLIST_WORDS
 
 
 class StonksBot:
-    """Scrape tickers from subreddits"""
+    """Scrape tickers from subreddits
+    :param subreddit: names of subreddits to scraper
+    :param number_of_posts: maximum number of posts per subreddit
+    :param number_of_days: number of days to look back
+
+    Usage:
+    from stonks_bot import StonksBot
+    sb = StonksBot(number_of_posts=10)
+    sb.find_tickers_on_reddit()
+    """
 
     def __init__(
         self,
@@ -19,7 +31,7 @@ class StonksBot:
         number_of_days: int = 1,
     ) -> None:
 
-        self.subreddit = subreddit if isinstance(subreddit, list) else [subreddit]
+        self.subreddits = subreddit if isinstance(subreddit, list) else [subreddit]
         self.number_of_posts = number_of_posts
         self.number_of_days = number_of_days
 
@@ -91,7 +103,7 @@ class StonksBot:
             if ticker not in BLACKLIST_WORDS
         ]
 
-    def find_tickers_in_post(self, post: praw.post) -> list:
+    def find_tickers_in_post(self, post) -> list:
         """Find al tickers in a title and comments
         :param post: A Reddit Post
         """
@@ -131,11 +143,49 @@ class StonksBot:
         """Loop through posts of a subreddit
         :param subreddit: name of the subreddit
         """
+        print(f"\nReading {subreddit}")
         sub = self.reddit.subreddit(subreddit)
         posts = sub.new(limit=self.number_of_posts)
 
         found_tickers = []
-        for _, post in enumerate(posts):
+        for _, post in tqdm(enumerate(posts)):
             found_tickers += self.find_tickers_in_post(post)
 
         return found_tickers
+
+    def find_tickers_on_reddit(self):
+        """loop through all subreddits"""
+
+        found_tickers = []
+        for _, subreddit in enumerate(self.subreddits):
+            found_tickers += self.find_tickers_in_subreddit(subreddit)
+
+        # count and to df
+        count = Counter(found_tickers)
+        df = (
+            pd.Series(count)
+            .to_frame("mentions")
+            .reset_index()
+            .rename(columns={"index": "ticker"})
+        )
+
+        print("\n\n Found the following tickers:")
+        print(df)
+
+        # add timestamp
+        df["ts"] = datetime.now()
+
+        # output
+        if not os.path.exists("output"):
+            os.mkdir("output")
+        df[["ts", "ticker", "mentions"]].to_csv(
+            "output/mentions.csv", index=False, mode="a", header=False
+        )
+
+
+if __name__ == "__main__":
+    # init Stonks Bot
+    sb = StonksBot(number_of_posts=2000)
+
+    # Run ano to the moon!
+    sb.find_tickers_on_reddit()
