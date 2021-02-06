@@ -1,5 +1,5 @@
 # Reddit-stonks-bot
-![wsb](https://en.wikipedia.org/wiki/R/wallstreetbets#/media/File:WallStreetBets.png)  
+![wsb](https://upload.wikimedia.org/wikipedia/en/f/f0/WallStreetBets.png)  
 
 Scrape most mentioned stock tickers from subreddits like Wallstreetbets and Wallstreetbetsnew. Use it go to the moon!
 
