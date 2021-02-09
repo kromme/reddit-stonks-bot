@@ -170,7 +170,7 @@ class StonksBot:
         )
 
         print("\n\n Found the following tickers:")
-        print(df)
+        print(df.sort_values(ascending=False).head(10))
 
         # add timestamp
         df["ts"] = datetime.now()
