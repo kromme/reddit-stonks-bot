@@ -13,7 +13,7 @@ The output is printed and exported to output/mentions.csv in `append`-mode.
 ```
 git clone https://github.com/kromme/reddit-stonks-bot.git
 cd reddit-stonks-bot
-python -r requirements.txt
+pip install -r requirements.txt
 ```
 
 

@@ -1,3 +1,4 @@
 pandas
 praw
 tqdm
+pyyaml # only required if you will use the yaml file
